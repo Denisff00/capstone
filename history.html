@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capstone — Riwayat Data Sensor</title>
+  <meta name="description" content="Riwayat data sensor Capstone Smart Green — monitoring kelembaban tanah, suhu, dan kelembaban udara jangka panjang.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ5hw+VlIQ5cXKNEXfTp/AUGPTVLIQEgYFRkFP0gdTw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="history.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+  <!-- ============================================
+       AUTH OVERLAY (shared)
+       ============================================ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-logo">🌿</div>
+      <h2 class="auth-title">Capstone</h2>
+      <p class="auth-subtitle">Masuk untuk melihat riwayat data</p>
+      <div id="authLoginForm">
+        <div class="auth-input-group">
+          <label for="authEmail"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="authEmail" placeholder="email@example.com" autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="authPassword"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="auth-error" id="authError" style="display:none"></div>
+        <button class="btn btn-auth-login" id="authLoginBtn" onclick="handleHistoryLogin()">
+          <i class="fa-solid fa-right-to-bracket"></i> Masuk
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       HAMBURGER MENU NAVIGATION
+       ============================================ -->
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-sidebar" id="navSidebar">
+    <div class="nav-sidebar-header">
+      <span class="sidebar-logo">🌿</span>
+      <div>
+        <div class="sidebar-title">Capstone</div>
+        <div class="sidebar-subtitle">Smart Green</div>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <span class="nav-menu-label">Menu</span>
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="history.html" class="nav-item active">
+        <i class="fas fa-chart-line"></i>
+        <span>Riwayat Data</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan MQTT</span>
+      </a>
+      <a href="troubleshooting.html" class="nav-item">
+        <i class="fas fa-wrench"></i>
+        <span>Troubleshooting</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item nav-logout" id="sidebarLogoutBtn" onclick="handleHistoryLogout(); return false;" style="display:none">
+        <img src="assets/logout.svg" alt="Logout" style="width: 18px; height: 18px;">
+        <span>Keluar</span>
+      </a>
+    </div>
+    <div class="nav-sidebar-footer">
+      🌿 Capstone — Smart Green © 2026
+    </div>
+  </nav>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">🌿</div>
+        <div class="header-title">
+          <h1>Capstone</h1>
+          <p>Riwayat Data Sensor</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="firebase-badge disconnected" id="firebaseBadge" title="Firebase Status">
+          <i class="fas fa-database"></i>
+          <span id="firebaseStatusText">Firebase Offline</span>
+        </div>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="main-content">
+
+    <!-- Stats Overview -->
+    <section class="history-stats" id="historyStats">
+      <div class="stat-card stat-readings">
+        <div class="stat-icon"><i class="fas fa-database"></i></div>
+        <div class="stat-body">
+          <span class="stat-label">Total Pembacaan</span>
+          <span class="stat-value" id="statTotalReadings">--</span>
+        </div>
+      </div>
+      <div class="stat-card stat-avgmoisture">
+        <div class="stat-icon"><i class="fas fa-tint"></i></div>
+        <div class="stat-body">
+          <span class="stat-label">Rata-rata Kelembaban</span>
+          <span class="stat-value" id="statAvgMoisture">--.-%</span>
+        </div>
+      </div>
+      <div class="stat-card stat-avgtemp">
+        <div class="stat-icon"><i class="fas fa-thermometer-half"></i></div>
+        <div class="stat-body">
+          <span class="stat-label">Rata-rata Suhu</span>
+          <span class="stat-value" id="statAvgTemp">--.-°C</span>
+        </div>
+      </div>
+      <div class="stat-card stat-events">
+        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+        <div class="stat-body">
+          <span class="stat-label">Event Motor</span>
+          <span class="stat-value" id="statMotorEvents">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Time Range Selector -->
+    <section class="range-selector-section">
+      <div class="card range-card">
+        <div class="range-header">
+          <h2 class="card-title">
+            <i class="fas fa-filter"></i> Rentang Waktu
+          </h2>
+          <div class="range-buttons" id="rangeButtons">
+            <button class="range-btn" data-hours="1">1 Jam</button>
+            <button class="range-btn" data-hours="6">6 Jam</button>
+            <button class="range-btn active" data-hours="24">24 Jam</button>
+            <button class="range-btn" data-hours="168">7 Hari</button>
+            <button class="range-btn" data-hours="720">30 Hari</button>
+          </div>
+        </div>
+        <div class="range-info" id="rangeInfo">
+          <i class="fas fa-info-circle"></i>
+          <span>Menampilkan data 24 jam terakhir</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="history-charts">
+      <div class="charts-grid">
+        <!-- Moisture Chart -->
+        <div class="card chart-card">
+          <h2 class="card-title">
+            <i class="fas fa-tint"></i> Kelembaban Tanah
+          </h2>
+          <div class="chart-wrapper chart-wrapper-lg">
+            <canvas id="historyMoistureChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Temperature & Humidity Chart -->
+        <div class="card chart-card">
+          <h2 class="card-title">
+            <i class="fas fa-thermometer-half"></i> Suhu & Kelembaban Udara
+          </h2>
+          <div class="chart-wrapper chart-wrapper-lg">
+            <canvas id="historyTempHumidChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Motor Events Table -->
+    <section class="events-section">
+      <div class="card events-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-list-alt"></i> Log Event Motor
+          </h2>
+          <div class="events-legend">
+            <span class="event-legend-item">
+              <span class="event-dot event-dot-pump"></span> Pompa
+            </span>
+            <span class="event-legend-item">
+              <span class="event-dot event-dot-sprayer"></span> Sprayer
+            </span>
+          </div>
+        </div>
+        <div class="events-table-wrapper">
+          <table class="events-table" id="eventsTable">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Perangkat</th>
+                <th>Status</th>
+                <th>Sumber</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div class="no-data" id="noEventsMsg" style="display:none">
+            <i class="fas fa-inbox"></i>
+            <p>Belum ada event motor dalam rentang waktu ini</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <div class="history-loading" id="historyLoading" style="display:none">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Memuat data dari Firebase...</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="footer">
+    <p>🌿 Capstone — Riwayat Data Sensor &copy; 2026 | Capstone Project</p>
+  </footer>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Firebase SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+
+  <!-- History Page Logic -->
+  <script src="history.js"></script>
+
+</body>
+</html>

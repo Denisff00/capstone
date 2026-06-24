@@ -1,0 +1,31 @@
+# ─── Sistem Operasi ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor ───
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ─── Arduino ───
+# Build output
+build/
+*.elf
+*.hex
+*.bin
+*.map
+
+# ─── Node.js (jika ada) ───
+node_modules/
+npm-debug.log
+
+# ─── File Sensitif — JANGAN di-commit! ───
+# Jika Anda memisahkan konfigurasi sensitif ke file terpisah,
+# tambahkan di sini. Contoh:
+# secrets.h
+# .env
+
+# Catatan: config.h di repo ini SUDAH berisi WiFi & API key.
+# Pastikan untuk mengganti nilainya sebelum push ke repo publik!

@@ -1,0 +1,366 @@
+/* ============================================
+   AgroSense — History Page Styles
+   ============================================ */
+
+/* ============================================
+   1. STATS OVERVIEW
+   ============================================ */
+.history-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  animation: fadeSlideIn 0.5s var(--ease);
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-readings::before { background: var(--info); }
+.stat-avgmoisture::before { background: var(--primary); }
+.stat-avgtemp::before { background: var(--warning); }
+.stat-events::before { background: var(--accent); }
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.stat-readings .stat-icon { background: var(--info-light); color: #1d4ed8; }
+.stat-avgmoisture .stat-icon { background: var(--primary-lighter); color: var(--primary-dark); }
+.stat-avgtemp .stat-icon { background: var(--warning-light); color: #b45309; }
+.stat-events .stat-icon { background: var(--accent-light); color: var(--accent-dark); }
+
+.stat-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   2. RANGE SELECTOR
+   ============================================ */
+.range-card {
+  animation: fadeSlideIn 0.5s var(--ease) 0.1s backwards;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.range-header .card-title {
+  margin-bottom: 0;
+}
+
+.range-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.range-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.range-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.range-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.range-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--primary-lighter);
+}
+
+.range-info i {
+  color: var(--primary);
+  font-size: 0.75rem;
+}
+
+/* ============================================
+   3. CHART WRAPPERS (larger for history)
+   ============================================ */
+.chart-wrapper-lg {
+  height: 320px;
+}
+
+.history-charts {
+  animation: fadeSlideIn 0.5s var(--ease) 0.2s backwards;
+}
+
+/* ============================================
+   4. MOTOR EVENTS TABLE
+   ============================================ */
+.events-card {
+  animation: fadeSlideIn 0.5s var(--ease) 0.3s backwards;
+}
+
+.events-legend {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.event-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.event-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.event-dot-pump { background: var(--primary); }
+.event-dot-sprayer { background: var(--accent); }
+
+.events-table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.events-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border);
+  z-index: 1;
+}
+
+.events-table td {
+  padding: 10px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.events-table tbody tr:hover td {
+  background: #f8faf8;
+}
+
+.events-table .badge-on {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--primary-lighter);
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.events-table .badge-off {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--border-light);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.events-table .device-pump {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.events-table .device-sprayer {
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.events-table .source-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.source-manual { background: #ede9fe; color: #6d28d9; }
+.source-auto { background: var(--primary-lighter); color: var(--primary-dark); }
+.source-scheduled { background: var(--warning-light); color: #b45309; }
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--text-muted);
+}
+
+.no-data i {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.4;
+  display: block;
+}
+
+.no-data p {
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   5. LOADING STATE
+   ============================================ */
+.history-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--primary-dark);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.loading-spinner i {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+/* ============================================
+   6. RESPONSIVE
+   ============================================ */
+@media (max-width: 1200px) {
+  .history-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .range-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .history-stats {
+    grid-template-columns: 1fr;
+  }
+  .range-buttons {
+    width: 100%;
+  }
+  .range-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+  .chart-wrapper-lg {
+    height: 250px;
+  }
+  .events-table th,
+  .events-table td {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+}

@@ -1,0 +1,774 @@
+/* ============================================
+   Capstone — Smart Green
+   Settings & Troubleshooting Pages
+   + Hamburger Menu Navigation
+   ============================================ */
+
+/* ============================================
+   1. HAMBURGER MENU — Global Navigation
+   ============================================ */
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 201;
+}
+
+.hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.05);
+}
+
+.hamburger-btn .hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 20px;
+}
+
+.hamburger-btn .hamburger-icon span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  transition: all var(--transition);
+  transform-origin: center;
+}
+
+/* Hamburger → X animation */
+.hamburger-btn.active .hamburger-icon span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-btn.active .hamburger-icon span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger-btn.active .hamburger-icon span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ── Overlay ── */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 199;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Sidebar Drawer ── */
+.nav-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #f8faf8 100%);
+  z-index: 200;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.12);
+  transform: translateX(100%);
+  transition: transform var(--transition);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.nav-sidebar.active {
+  transform: translateX(0);
+}
+
+.nav-sidebar-header {
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--bg-header);
+  color: var(--text-inverse);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.nav-sidebar-header .sidebar-logo {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.nav-sidebar-header .sidebar-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.nav-sidebar-header .sidebar-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* ── Nav Items ── */
+.nav-menu {
+  flex: 1;
+  padding: var(--space-md) var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-menu-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: var(--space-md) var(--space-md) var(--space-xs);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.nav-item:hover {
+  background: var(--primary-lighter);
+  color: var(--primary-dark);
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, var(--primary-lighter) 0%, #dcfce7 100%);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-item i,
+.nav-item img {
+  width: 20px;
+  font-size: 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-item img {
+  height: 20px;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.nav-item:hover img {
+  opacity: 1;
+}
+
+.nav-item .nav-badge {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-lighter);
+  color: var(--primary-dark);
+}
+
+/* ── Sidebar Divider ── */
+.nav-divider {
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-sm) var(--space-md);
+}
+
+/* ── Logout in Sidebar ── */
+.nav-item.nav-logout {
+  color: var(--danger);
+  margin-top: var(--space-sm);
+}
+
+.nav-item.nav-logout:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.nav-item.nav-logout img {
+  filter: brightness(0) saturate(100%) invert(36%) sepia(76%) saturate(2476%) hue-rotate(338deg) brightness(91%) contrast(97%);
+}
+
+/* ── Sidebar Footer ── */
+.nav-sidebar-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   2. SETTINGS PAGE — MQTT Configuration
+   ============================================ */
+.settings-page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.settings-page-title h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settings-page-title i {
+  font-size: 1.3rem;
+  color: var(--primary);
+}
+
+/* Settings Sections Grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+/* MQTT Connection Form — Full Width */
+.settings-mqtt-panel {
+  grid-column: 1 / -1;
+}
+
+.mqtt-config-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
+.mqtt-config-form .mqtt-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mqtt-config-form .mqtt-input-group label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mqtt-config-form .mqtt-input-group label i {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.mqtt-config-form input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-input);
+  outline: none;
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.mqtt-config-form input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  background: white;
+}
+
+.mqtt-config-form input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--border-light);
+}
+
+/* MQTT Status Panel */
+.mqtt-status-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  transition: all var(--transition);
+}
+
+.mqtt-status-panel.status-connected {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid var(--primary-light);
+}
+
+.mqtt-status-panel.status-disconnected {
+  background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+  border: 1px solid #fca5a5;
+}
+
+.mqtt-status-panel.status-connecting {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+}
+
+.mqtt-status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.mqtt-status-dot.dot-connected {
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.mqtt-status-dot.dot-disconnected {
+  background: var(--danger);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.mqtt-status-dot.dot-connecting {
+  background: var(--warning);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  animation: pulse 1.2s infinite;
+}
+
+.mqtt-status-info {
+  flex: 1;
+}
+
+.mqtt-status-info h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mqtt-status-info p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* MQTT Actions Buttons */
+.settings-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.settings-actions .btn {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+  padding: 12px 20px;
+}
+
+/* Saved Settings Card */
+.saved-settings-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.saved-settings-card i {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.saved-settings-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Connection Info Items */
+.connection-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.conn-info-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.conn-info-item .info-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.conn-info-item .info-value {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+/* ============================================
+   3. TROUBLESHOOTING PAGE
+   ============================================ */
+
+/* Status Grid */
+.ts-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.ts-status-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.ts-status-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.ts-status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ts-status-dot.online {
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+  animation: pulse 2s infinite;
+}
+
+.ts-status-dot.offline {
+  background: var(--danger);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+}
+
+.ts-status-dot.unknown {
+  background: var(--text-muted);
+}
+
+.ts-status-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ts-status-value {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.ts-status-value.val-online {
+  background: var(--primary-lighter);
+  color: var(--primary-dark);
+}
+
+.ts-status-value.val-offline {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.ts-status-value.val-unknown {
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+/* ── Accordion ── */
+.ts-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ts-accordion-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.ts-accordion-item:hover {
+  border-color: var(--primary-light);
+}
+
+.ts-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+
+.ts-accordion-header:hover {
+  background: #fafffe;
+}
+
+.ts-accordion-header .ts-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.ts-accordion-header h3 {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ts-accordion-header .ts-chevron {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+
+.ts-accordion-item.open .ts-chevron {
+  transform: rotate(180deg);
+}
+
+.ts-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease);
+}
+
+.ts-accordion-item.open .ts-accordion-body {
+  max-height: 600px;
+}
+
+.ts-accordion-content {
+  padding: 0 var(--space-lg) var(--space-lg);
+  border-top: 1px solid var(--border-light);
+}
+
+.ts-step-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+}
+
+.ts-step-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ts-step-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary-lighter);
+  color: var(--primary-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ts-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: #f0fdf4;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--primary-dark);
+  margin-top: var(--space-sm);
+  border: 1px solid var(--primary-lighter);
+}
+
+.ts-tip i {
+  color: var(--primary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* ── MQTT Live Monitor ── */
+.mqtt-monitor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.mqtt-monitor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.mqtt-monitor-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.monitor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.monitor-dot.recording {
+  background: var(--primary);
+  animation: pulse 1.5s infinite;
+}
+
+.mqtt-log-container {
+  background: #0f172a;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'Courier New', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.mqtt-log-entry {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeSlideIn 0.2s var(--ease);
+}
+
+.mqtt-log-entry:last-child {
+  border-bottom: none;
+}
+
+.mqtt-log-time {
+  color: #64748b;
+  flex-shrink: 0;
+  min-width: 65px;
+}
+
+.mqtt-log-topic {
+  color: #38bdf8;
+  flex-shrink: 0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mqtt-log-payload {
+  color: #86efac;
+  word-break: break-all;
+}
+
+.mqtt-log-empty {
+  text-align: center;
+  padding: var(--space-xl);
+  color: #475569;
+  font-style: italic;
+}
+
+/* ============================================
+   4. RESPONSIVE — Settings & Troubleshooting
+   ============================================ */
+@media (max-width: 900px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .mqtt-config-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-sidebar {
+    width: 280px;
+  }
+  .settings-actions {
+    flex-direction: column;
+  }
+  .settings-actions .btn {
+    min-width: unset;
+  }
+  .ts-status-grid {
+    grid-template-columns: 1fr;
+  }
+}

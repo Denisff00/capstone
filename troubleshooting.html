@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capstone — Troubleshooting</title>
+  <meta name="description" content="Panduan troubleshooting dan diagnostik sistem AgroSense Smart Green. Monitor MQTT real-time dan panduan perbaikan masalah.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ5hw+VlIQ5cXKNEXfTp/AUGPTVLIQEgYFRkFP0gdTw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+  <!-- ============================================
+       HAMBURGER MENU NAVIGATION
+       ============================================ -->
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-sidebar" id="navSidebar">
+    <div class="nav-sidebar-header">
+      <span class="sidebar-logo">🌿</span>
+      <div>
+        <div class="sidebar-title">Capstone</div>
+        <div class="sidebar-subtitle">Smart Green</div>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <span class="nav-menu-label">Menu</span>
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="history.html" class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Riwayat Data</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan MQTT</span>
+      </a>
+      <a href="troubleshooting.html" class="nav-item active">
+        <i class="fas fa-wrench"></i>
+        <span>Troubleshooting</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item nav-logout" id="sidebarLogoutBtn" onclick="handleTsLogout(); return false;">
+        <img src="assets/logout.svg" alt="Logout" style="width: 18px; height: 18px;">
+        <span>Keluar</span>
+      </a>
+    </div>
+    <div class="nav-sidebar-footer">
+      🌿 Capstone — Smart Green © 2026
+    </div>
+  </nav>
+
+  <!-- ============================================
+       TOAST NOTIFICATIONS
+       ============================================ -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">🌿</div>
+        <div class="header-title">
+          <h1>Capstone</h1>
+          <p>Troubleshooting</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="main-content">
+
+    <!-- Page Title -->
+    <div class="settings-page-title">
+      <i class="fas fa-wrench"></i>
+      <h2>Panduan Troubleshooting</h2>
+    </div>
+
+    <!-- ==========================================
+         SYSTEM STATUS OVERVIEW
+         ========================================== -->
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fas fa-heartbeat"></i> Status Sistem
+      </h2>
+      <div class="ts-status-grid">
+        <div class="ts-status-item">
+          <span class="ts-status-dot unknown" id="tsMqttDot"></span>
+          <span class="ts-status-label">MQTT Broker</span>
+          <span class="ts-status-value val-unknown" id="tsMqttStatus">Tidak Diketahui</span>
+        </div>
+        <div class="ts-status-item">
+          <span class="ts-status-dot unknown" id="tsFirebaseDot"></span>
+          <span class="ts-status-label">Firebase</span>
+          <span class="ts-status-value val-unknown" id="tsFirebaseStatus">Tidak Diketahui</span>
+        </div>
+        <div class="ts-status-item">
+          <span class="ts-status-dot unknown" id="tsEsp32Dot"></span>
+          <span class="ts-status-label">ESP32</span>
+          <span class="ts-status-value val-unknown" id="tsEsp32Status">Tidak Diketahui</span>
+        </div>
+        <div class="ts-status-item">
+          <span class="ts-status-dot unknown" id="tsSensorDot"></span>
+          <span class="ts-status-label">Sensor</span>
+          <span class="ts-status-value val-unknown" id="tsSensorStatus">Tidak Diketahui</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TROUBLESHOOTING GUIDE (Accordion)
+         ========================================== -->
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fas fa-book-open"></i> Panduan Perbaikan
+      </h2>
+      <div class="ts-accordion" id="tsAccordion">
+
+        <!-- 1. MQTT Connection Issue -->
+        <div class="ts-accordion-item">
+          <div class="ts-accordion-header" onclick="toggleAccordion(this)">
+            <div class="ts-icon"><i class="fas fa-plug"></i></div>
+            <h3>MQTT tidak terhubung</h3>
+            <i class="fas fa-chevron-down ts-chevron"></i>
+          </div>
+          <div class="ts-accordion-body">
+            <div class="ts-accordion-content">
+              <ol class="ts-step-list">
+                <li>
+                  <span class="ts-step-number">1</span>
+                  Pastikan Anda terkoneksi ke internet dan WiFi stabil
+                </li>
+                <li>
+                  <span class="ts-step-number">2</span>
+                  Periksa <strong>Broker Host</strong> di halaman <a href="settings.html">Pengaturan MQTT</a> — pastikan URL broker benar
+                </li>
+                <li>
+                  <span class="ts-step-number">3</span>
+                  Periksa <strong>Port WebSocket</strong> — untuk HiveMQ Cloud gunakan port <code>8884</code>
+                </li>
+                <li>
+                  <span class="ts-step-number">4</span>
+                  Pastikan <strong>Username</strong> dan <strong>Password</strong> sesuai dengan kredensial HiveMQ Cloud
+                </li>
+                <li>
+                  <span class="ts-step-number">5</span>
+                  Coba hapus konfigurasi tersimpan dan masukkan ulang di halaman <a href="settings.html">Pengaturan</a>
+                </li>
+              </ol>
+              <div class="ts-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span>HiveMQ Cloud menggunakan TLS/SSL wajib. Pastikan browser Anda mendukung WebSocket Secure (WSS).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Sensor Issue -->
+        <div class="ts-accordion-item">
+          <div class="ts-accordion-header" onclick="toggleAccordion(this)">
+            <div class="ts-icon"><i class="fas fa-microchip"></i></div>
+            <h3>Sensor tidak membaca data</h3>
+            <i class="fas fa-chevron-down ts-chevron"></i>
+          </div>
+          <div class="ts-accordion-body">
+            <div class="ts-accordion-content">
+              <ol class="ts-step-list">
+                <li>
+                  <span class="ts-step-number">1</span>
+                  Pastikan ESP32 menyala dan terhubung ke WiFi (cek LED indikator)
+                </li>
+                <li>
+                  <span class="ts-step-number">2</span>
+                  Periksa kabel sensor soil moisture — pin <strong>GPIO 34</strong> (ADC)
+                </li>
+                <li>
+                  <span class="ts-step-number">3</span>
+                  Periksa kabel sensor DHT22 — pin <strong>GPIO 4</strong>
+                </li>
+                <li>
+                  <span class="ts-step-number">4</span>
+                  Buka Serial Monitor di Arduino IDE (115200 baud) untuk melihat log ESP32
+                </li>
+                <li>
+                  <span class="ts-step-number">5</span>
+                  Kalibrasi ulang sensor soil moisture di <code>config.h</code>:
+                  <br><code>SOIL_DRY_VALUE</code> (nilai ADC kering) dan <code>SOIL_WET_VALUE</code> (nilai ADC basah)
+                </li>
+              </ol>
+              <div class="ts-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span>Capacitive Soil Moisture v2.0: ADC tinggi = kering, ADC rendah = basah. Ukur nilai di udara dan di air untuk kalibrasi.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Pump Issue -->
+        <div class="ts-accordion-item">
+          <div class="ts-accordion-header" onclick="toggleAccordion(this)">
+            <div class="ts-icon"><i class="fas fa-faucet"></i></div>
+            <h3>Pompa tidak merespons</h3>
+            <i class="fas fa-chevron-down ts-chevron"></i>
+          </div>
+          <div class="ts-accordion-body">
+            <div class="ts-accordion-content">
+              <ol class="ts-step-list">
+                <li>
+                  <span class="ts-step-number">1</span>
+                  Periksa apakah relay terhubung dengan benar ke pin <strong>GPIO 26</strong> (Pompa)
+                </li>
+                <li>
+                  <span class="ts-step-number">2</span>
+                  Pastikan relay mendapat daya yang cukup (cek adaptor / power supply)
+                </li>
+                <li>
+                  <span class="ts-step-number">3</span>
+                  Cek apakah mode penyiraman otomatis <strong>aktif</strong> di dashboard
+                </li>
+                <li>
+                  <span class="ts-step-number">4</span>
+                  Periksa nilai <strong>threshold</strong> — pastikan kelembaban tanah memang di bawah batas bawah
+                </li>
+                <li>
+                  <span class="ts-step-number">5</span>
+                  Coba kontrol pompa secara <strong>manual</strong> dari dashboard untuk mengisolasi masalah
+                </li>
+              </ol>
+              <div class="ts-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span>Relay module menggunakan Active LOW. LOW = ON, HIGH = OFF. Jika terbalik, ubah <code>RELAY_ACTIVE_LOW</code> di config.h.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Firebase Issue -->
+        <div class="ts-accordion-item">
+          <div class="ts-accordion-header" onclick="toggleAccordion(this)">
+            <div class="ts-icon"><i class="fas fa-database"></i></div>
+            <h3>Firebase offline / tidak menyimpan data</h3>
+            <i class="fas fa-chevron-down ts-chevron"></i>
+          </div>
+          <div class="ts-accordion-body">
+            <div class="ts-accordion-content">
+              <ol class="ts-step-list">
+                <li>
+                  <span class="ts-step-number">1</span>
+                  Pastikan Anda sudah <strong>login</strong> di dashboard (Firebase Auth)
+                </li>
+                <li>
+                  <span class="ts-step-number">2</span>
+                  Periksa koneksi internet Anda
+                </li>
+                <li>
+                  <span class="ts-step-number">3</span>
+                  Cek kuota Firebase Realtime Database di <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a>
+                </li>
+                <li>
+                  <span class="ts-step-number">4</span>
+                  Pastikan <strong>Database Rules</strong> mengizinkan read/write untuk user yang ter-autentikasi
+                </li>
+                <li>
+                  <span class="ts-step-number">5</span>
+                  Periksa konfigurasi API key dan database URL di <code>firebase-config.js</code>
+                </li>
+              </ol>
+              <div class="ts-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span>Firebase Spark plan (gratis) memiliki limit 1GB storage dan 10GB/bulan transfer. Jika mendekati limit, pertimbangkan untuk mengurangi frekuensi pengiriman data.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Schedule Issue -->
+        <div class="ts-accordion-item">
+          <div class="ts-accordion-header" onclick="toggleAccordion(this)">
+            <div class="ts-icon"><i class="fas fa-calendar-times"></i></div>
+            <h3>Jadwal penyemprotan tidak berjalan</h3>
+            <i class="fas fa-chevron-down ts-chevron"></i>
+          </div>
+          <div class="ts-accordion-body">
+            <div class="ts-accordion-content">
+              <ol class="ts-step-list">
+                <li>
+                  <span class="ts-step-number">1</span>
+                  Pastikan ESP32 terhubung ke internet agar NTP time sync berjalan
+                </li>
+                <li>
+                  <span class="ts-step-number">2</span>
+                  Periksa timezone di <code>config.h</code> — harus <code>GMT_OFFSET_SEC = 25200</code> untuk WIB (UTC+7)
+                </li>
+                <li>
+                  <span class="ts-step-number">3</span>
+                  Pastikan jadwal sudah dikirim ke ESP32 melalui MQTT (cek log di dashboard)
+                </li>
+                <li>
+                  <span class="ts-step-number">4</span>
+                  Cek apakah jadwal tersimpan di NVS (restart ESP32 dan lihat Serial Monitor)
+                </li>
+                <li>
+                  <span class="ts-step-number">5</span>
+                  Pastikan hari yang dipilih di jadwal sesuai dengan hari saat ini
+                </li>
+              </ol>
+              <div class="ts-tip">
+                <i class="fas fa-lightbulb"></i>
+                <span>NTP server default: pool.ntp.org. Jadwal hanya akan berjalan jika waktu NTP sudah tersinkronisasi.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MQTT LIVE MONITOR
+         ========================================== -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <i class="fas fa-terminal"></i> MQTT Live Monitor
+        </h2>
+        <div class="mqtt-monitor-controls">
+          <span class="monitor-dot" id="monitorDot"></span>
+          <button class="btn btn-sm btn-primary" id="monitorConnectBtn" onclick="tsMonitor.connect()">
+            <i class="fas fa-play"></i> Mulai Monitor
+          </button>
+          <button class="btn btn-sm btn-disconnect" id="monitorStopBtn" onclick="tsMonitor.disconnect()" style="display:none">
+            <i class="fas fa-stop"></i> Stop
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="tsMonitor.clearLog()">
+            <img src="assets/trash.svg" alt="Clear" style="width: 1em; height: 1em; vertical-align: middle;"> Bersihkan
+          </button>
+        </div>
+      </div>
+      <div class="mqtt-log-container" id="mqttLogContainer">
+        <div class="mqtt-log-empty" id="mqttLogEmpty">
+          <i class="fas fa-satellite-dish" style="font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
+          Klik "Mulai Monitor" untuk melihat pesan MQTT secara real-time
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="footer">
+    <p>🌿 Capstone — Troubleshooting © 2026 | Capstone Project</p>
+  </footer>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
+
+  <!-- Firebase SDK (Compat) — for auth -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Troubleshooting Page Logic -->
+  <script src="troubleshooting.js"></script>
+
+</body>
+</html>

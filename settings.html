@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capstone — Pengaturan MQTT</title>
+  <meta name="description" content="Pengaturan koneksi MQTT broker untuk sistem AgroSense Smart Green.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ5hw+VlIQ5cXKNEXfTp/AUGPTVLIQEgYFRkFP0gdTw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+  <!-- ============================================
+       HAMBURGER MENU NAVIGATION
+       ============================================ -->
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-sidebar" id="navSidebar">
+    <div class="nav-sidebar-header">
+      <span class="sidebar-logo">🌿</span>
+      <div>
+        <div class="sidebar-title">Capstone</div>
+        <div class="sidebar-subtitle">Smart Green</div>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <span class="nav-menu-label">Menu</span>
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="history.html" class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Riwayat Data</span>
+      </a>
+      <a href="settings.html" class="nav-item active">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan MQTT</span>
+      </a>
+      <a href="troubleshooting.html" class="nav-item">
+        <i class="fas fa-wrench"></i>
+        <span>Troubleshooting</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item nav-logout" id="sidebarLogoutBtn" onclick="handleSettingsLogout(); return false;">
+        <img src="assets/logout.svg" alt="Logout" style="width: 18px; height: 18px;">
+        <span>Keluar</span>
+      </a>
+    </div>
+    <div class="nav-sidebar-footer">
+      🌿 Capstone — Smart Green © 2026
+    </div>
+  </nav>
+
+  <!-- ============================================
+       TOAST NOTIFICATIONS
+       ============================================ -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">🌿</div>
+        <div class="header-title">
+          <h1>Capstone</h1>
+          <p>Pengaturan MQTT</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="connection-badge" id="connectionBadge">
+          <span class="pulse-dot" id="connDot"></span>
+          <span id="connText">Offline</span>
+        </div>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="main-content">
+
+    <!-- Page Title -->
+    <div class="settings-page-title">
+      <i class="fas fa-cog"></i>
+      <h2>Pengaturan Koneksi MQTT</h2>
+    </div>
+
+    <!-- MQTT Status Panel -->
+    <div class="mqtt-status-panel status-disconnected" id="settingsMqttStatus">
+      <span class="mqtt-status-dot dot-disconnected" id="settingsStatusDot"></span>
+      <div class="mqtt-status-info">
+        <h3 id="settingsStatusTitle">MQTT Terputus</h3>
+        <p id="settingsStatusDesc">Belum terhubung ke broker MQTT</p>
+      </div>
+      <span class="mqtt-status-badge badge-disconnected" id="settingsStatusBadge">Terputus</span>
+    </div>
+
+    <div class="settings-grid">
+
+      <!-- ======= MQTT Connection Form ======= -->
+      <div class="card settings-mqtt-panel">
+        <h2 class="card-title">
+          <i class="fas fa-plug"></i> Konfigurasi Broker MQTT
+        </h2>
+
+        <div class="mqtt-config-form" id="mqttConfigForm">
+          <div class="mqtt-input-group">
+            <label><i class="fas fa-server"></i> Broker Host (TLS)</label>
+            <input type="text" id="mqttHost" value="617ddeac74124ae2ac195ed4ad8f7c08.s1.eu.hivemq.cloud" placeholder="broker.hivemq.cloud">
+          </div>
+          <div class="mqtt-input-group">
+            <label><i class="fas fa-hashtag"></i> WebSocket Port</label>
+            <input type="text" id="mqttPort" value="8884" placeholder="8884">
+          </div>
+          <div class="mqtt-input-group">
+            <label><i class="fas fa-user"></i> Username</label>
+            <input type="text" id="mqttUsername" value="capstone-smartgreen" placeholder="Username MQTT">
+          </div>
+          <div class="mqtt-input-group">
+            <label><i class="fas fa-key"></i> Password</label>
+            <input type="password" id="mqttPassword" value="Capstone3" placeholder="Password MQTT">
+          </div>
+          <div class="mqtt-input-group">
+            <label><i class="fas fa-id-badge"></i> Client ID</label>
+            <input type="text" id="mqttClientId" value="agrosense-dashboard" placeholder="dashboard-001">
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button class="btn btn-connect" id="settingsConnectBtn" onclick="settingsMqtt.connect()">
+            <i class="fas fa-plug"></i> Hubungkan
+          </button>
+          <button class="btn btn-disconnect" id="settingsDisconnectBtn" onclick="settingsMqtt.disconnect()" style="display:none">
+            <i class="fas fa-unlink"></i> Putuskan
+          </button>
+          <button class="btn btn-outline" id="settingsClearBtn" onclick="settingsMqtt.clearSaved()">
+            <img src="assets/trash.svg" alt="Hapus" style="width: 1em; height: 1em; vertical-align: middle;"> Hapus Tersimpan
+          </button>
+        </div>
+      </div>
+
+      <!-- ======= Connection Info ======= -->
+      <div class="card">
+        <h2 class="card-title">
+          <i class="fas fa-info-circle"></i> Info Koneksi
+        </h2>
+        <div class="connection-info-list" id="connectionInfoList">
+          <div class="conn-info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value" id="infoStatus">Terputus</span>
+          </div>
+          <div class="conn-info-item">
+            <span class="info-label">Broker</span>
+            <span class="info-value" id="infoBroker">—</span>
+          </div>
+          <div class="conn-info-item">
+            <span class="info-label">Client ID</span>
+            <span class="info-value" id="infoClientId">—</span>
+          </div>
+          <div class="conn-info-item">
+            <span class="info-label">Protocol</span>
+            <span class="info-value">WSS / TLS</span>
+          </div>
+          <div class="conn-info-item">
+            <span class="info-label">Tersimpan</span>
+            <span class="info-value" id="infoSaved">Tidak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= Saved Settings ======= -->
+      <div class="card">
+        <h2 class="card-title">
+          <i class="fas fa-save"></i> Pengaturan Tersimpan
+        </h2>
+        <div class="saved-settings-card" id="savedSettingsInfo">
+          <i class="fas fa-database"></i>
+          <p id="savedSettingsText">Konfigurasi MQTT akan tersimpan otomatis di browser Anda saat terhubung.</p>
+          <button class="btn btn-sm btn-primary" id="settingsTestBtn" onclick="settingsMqtt.testConnection()">
+            <i class="fas fa-satellite-dish"></i> Test Koneksi
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="footer">
+    <p>🌿 Capstone — Pengaturan MQTT © 2026 | Capstone Project</p>
+  </footer>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
+
+  <!-- Firebase SDK (Compat) — for auth -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Settings Page Logic -->
+  <script src="settings.js"></script>
+
+</body>
+</html>

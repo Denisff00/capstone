@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capstone — Smart Green</title>
+  <meta name="description" content="Dashboard monitoring penyiraman otomatis berbasis kelembaban tanah dan penyemprotan fungisida terjadwal. Kontrol manual motor pompa dan sprayer.">
+  <meta name="author" content="Capstone Project">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLGPg8YJ04IY4YZ5hw+VlIQ5cXKNEXfTp/AUGPTVLIQEgYFRkFP0gdTw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+
+  <!-- ============================================
+       AUTH LOGIN OVERLAY
+       ============================================ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-logo">🌿</div>
+      <h2 class="auth-title">Capstone</h2>
+      <p class="auth-subtitle">Smart Green</p>
+
+      <!-- Login Form -->
+      <div id="authLoginForm">
+        <div class="auth-input-group">
+          <label for="authEmail"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="authEmail" placeholder="email@example.com" autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="authPassword"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="auth-error" id="authError" style="display:none"></div>
+        <button class="btn btn-auth-login" id="authLoginBtn" onclick="handleAuthLogin()">
+          <i class="fa-solid fa-right-to-bracket"></i> Masuk
+        </button>
+        <p class="auth-switch">
+          Belum punya akun? <a href="#" onclick="toggleAuthMode(true); return false;">Daftar</a>
+        </p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="authRegisterForm" style="display:none">
+        <div class="auth-input-group">
+          <label for="authRegEmail"><i class="fas fa-envelope"></i> Email</label>
+          <input type="email" id="authRegEmail" placeholder="email@example.com" autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="authRegPassword"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="authRegPassword" placeholder="Minimal 6 karakter" autocomplete="new-password">
+        </div>
+        <div class="auth-input-group">
+          <label for="authRegConfirm"><i class="fas fa-lock"></i> Konfirmasi Password</label>
+          <input type="password" id="authRegConfirm" placeholder="Ulangi password" autocomplete="new-password">
+        </div>
+        <div class="auth-error" id="authRegError" style="display:none"></div>
+        <button class="btn btn-auth-login" id="authRegisterBtn" onclick="handleAuthRegister()">
+          <i class="fa-solid fa-user-plus"></i> Daftar
+        </button>
+        <p class="auth-switch">
+          Sudah punya akun? <a href="#" onclick="toggleAuthMode(false); return false;">Masuk</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       HAMBURGER MENU NAVIGATION
+       ============================================ -->
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-sidebar" id="navSidebar">
+    <div class="nav-sidebar-header">
+      <span class="sidebar-logo">🌿</span>
+      <div>
+        <div class="sidebar-title">Capstone</div>
+        <div class="sidebar-subtitle">Smart Green</div>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <span class="nav-menu-label">Menu</span>
+      <a href="index.html" class="nav-item active">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="history.html" class="nav-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Riwayat Data</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Pengaturan MQTT</span>
+      </a>
+      <a href="troubleshooting.html" class="nav-item">
+        <i class="fas fa-wrench"></i>
+        <span>Troubleshooting</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item nav-logout" id="sidebarLogoutBtn" onclick="dashboard.firebase.logout(); return false;" style="display:none">
+        <img src="assets/logout.svg" alt="Logout" style="width: 18px; height: 18px;">
+        <span>Keluar</span>
+      </a>
+    </div>
+    <div class="nav-sidebar-footer">
+      🌿 Capstone — Smart Green © 2026
+    </div>
+  </nav>
+
+  <!-- ============================================
+       TOAST NOTIFICATIONS CONTAINER
+       ============================================ -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">🌿</div>
+        <div class="header-title">
+          <h1>Capstone</h1>
+          <p>Smart Green</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="connection-badge" id="connectionBadge">
+          <span class="pulse-dot"></span>
+          <span>Online</span>
+        </div>
+        <div class="firebase-badge disconnected" id="firebaseBadge" title="Firebase Status">
+          <i class="fas fa-database"></i>
+          <span id="firebaseStatusText">Firebase Offline</span>
+        </div>
+        <div class="realtime-clock" id="realtimeClock">
+          <i class="fas fa-calendar-day"></i>
+          <span id="clockDate">--</span>
+          <span class="clock-separator">|</span>
+          <i class="fas fa-clock"></i>
+          <span id="clockTime">--:--:--</span>
+        </div>
+        <div class="uptime">
+          <i class="fas fa-stopwatch"></i>
+          <span id="uptimeValue">00:00:00</span>
+        </div>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="main-content">
+
+
+    <!-- ==========================================
+         STATUS CARDS
+         ========================================== -->
+    <section class="status-cards">
+      <!-- Soil Moisture -->
+      <div class="status-card card-moisture" id="cardMoisture">
+        <div class="card-icon">
+          <i class="fas fa-tint"></i>
+        </div>
+        <div class="card-body">
+          <span class="card-label">Kelembaban Tanah</span>
+          <span class="card-value" id="moistureValue">--.--%</span>
+        </div>
+        <div class="card-trend trend-stable" id="moistureTrend">
+          <i class="fas fa-minus"></i>
+        </div>
+      </div>
+
+      <!-- Temperature -->
+      <div class="status-card card-temperature" id="cardTemperature">
+        <div class="card-icon">
+          <i class="fas fa-thermometer-half"></i>
+        </div>
+        <div class="card-body">
+          <span class="card-label">Suhu Udara</span>
+          <span class="card-value" id="temperatureValue">--.-°C</span>
+        </div>
+        <div class="card-trend trend-stable" id="temperatureTrend">
+          <i class="fas fa-minus"></i>
+        </div>
+      </div>
+
+      <!-- Air Humidity -->
+      <div class="status-card card-humidity" id="cardHumidity">
+        <div class="card-icon">
+          <i class="fas fa-cloud-rain"></i>
+        </div>
+        <div class="card-body">
+          <span class="card-label">Kelembaban Udara</span>
+          <span class="card-value" id="humidityValue">--.--%</span>
+        </div>
+        <div class="card-trend trend-stable" id="humidityTrend">
+          <i class="fas fa-minus"></i>
+        </div>
+      </div>
+
+      <!-- System Status -->
+      <div class="status-card card-system" id="cardSystem">
+        <div class="card-icon">
+          <i class="fas fa-microchip"></i>
+        </div>
+        <div class="card-body">
+          <span class="card-label">Status Sistem</span>
+          <span class="card-value card-value-text">Online</span>
+        </div>
+        <div class="card-trend trend-up">
+          <i class="fas fa-check"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         CONTROLS GRID
+         ========================================== -->
+    <section class="controls-grid">
+
+      <!-- ========= LEFT COLUMN ========= -->
+      <div class="controls-left">
+
+        <!-- Moisture Gauge -->
+        <div class="card gauge-card">
+          <h2 class="card-title">
+            <i class="fas fa-tachometer-alt"></i> Monitor Kelembaban Tanah
+          </h2>
+          <div class="gauge-wrapper">
+            <svg viewBox="0 0 200 200" class="gauge-svg">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22c55e"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+              <!-- Background circle -->
+              <circle class="gauge-bg" cx="100" cy="100" r="85"/>
+              <!-- Progress circle -->
+              <circle class="gauge-fill" id="gaugeFill" cx="100" cy="100" r="85"/>
+              <!-- Center value -->
+              <text class="gauge-value-text" id="gaugeValue" x="100" y="100"
+                    text-anchor="middle" dominant-baseline="central">--%</text>
+            </svg>
+            <div class="gauge-status" id="gaugeStatus">--</div>
+          </div>
+          <div class="gauge-legend">
+            <span class="legend-item legend-dry">
+              <span class="legend-dot"></span> Kering (&lt;30%)
+            </span>
+            <span class="legend-item legend-optimal">
+              <span class="legend-dot"></span> Optimal (30–60%)
+            </span>
+            <span class="legend-item legend-wet">
+              <span class="legend-dot"></span> Basah (&gt;60%)
+            </span>
+          </div>
+        </div>
+
+        <!-- Auto Watering Configuration -->
+        <div class="card config-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <i class="fas fa-cog"></i> Penyiraman Otomatis
+            </h2>
+            <label class="toggle-switch">
+              <input type="checkbox" id="autoWateringToggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="config-body" id="autoWateringConfig">
+            <div class="config-row">
+              <label>Batas Bawah — Mulai Siram</label>
+              <div class="slider-group">
+                <input type="range" id="lowThreshold" min="10" max="60" value="40" step="1">
+                <span class="slider-value" id="lowThresholdValue">40%</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label>Batas Atas — Stop Siram</label>
+              <div class="slider-group">
+                <input type="range" id="highThreshold" min="50" max="95" value="70" step="1">
+                <span class="slider-value" id="highThresholdValue">70%</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label>Durasi Penyiraman Maks.</label>
+              <div class="input-group">
+                <input type="number" id="wateringDuration" min="5" max="300" value="30" step="5">
+                <span class="input-suffix">detik</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= RIGHT COLUMN ========= -->
+      <div class="controls-right">
+
+        <!-- Manual Motor Controls -->
+        <div class="card manual-card">
+          <h2 class="card-title">
+            <i class="fas fa-gamepad"></i> Kontrol Manual
+          </h2>
+          <div class="motor-controls">
+            <!-- Water Pump -->
+            <div class="motor-control">
+              <div class="motor-header">
+                <div class="motor-info">
+                  <span id="pumpIndicator" class="status-indicator indicator-off"></span>
+                  <div>
+                    <h3>Motor Pompa Air</h3>
+                    <span class="motor-status status-off" id="pumpStatus">NONAKTIF</span>
+                    <span class="motor-source" id="pumpSource"></span>
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="pumpToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="motor-divider"></div>
+
+            <!-- Fungicide Sprayer -->
+            <div class="motor-control">
+              <div class="motor-header">
+                <div class="motor-info">
+                  <span id="sprayerIndicator" class="status-indicator indicator-off"></span>
+                  <div>
+                    <h3>Motor Sprayer Fungisida</h3>
+                    <span class="motor-status status-off" id="sprayerStatus">NONAKTIF</span>
+                    <span class="motor-source" id="sprayerSource"></span>
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="sprayerToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fungicide Scheduler -->
+        <div class="card scheduler-card">
+          <h2 class="card-title">
+            <i class="fas fa-calendar-alt"></i> Jadwal Penyemprotan Fungisida
+          </h2>
+
+          <!-- Countdown to next spray -->
+          <div class="countdown-bar">
+            <i class="fas fa-hourglass-half"></i>
+            <span>Penyemprotan berikutnya:</span>
+            <strong id="nextScheduleCountdown">--</strong>
+          </div>
+
+          <!-- Schedule Form -->
+          <div class="schedule-form">
+            <div class="form-group">
+              <label>Pilih Hari</label>
+              <div class="day-selector">
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="1">
+                  <span>Sen</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="2">
+                  <span>Sel</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="3">
+                  <span>Rab</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="4">
+                  <span>Kam</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="5">
+                  <span>Jum</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="6">
+                  <span>Sab</span>
+                </label>
+                <label class="day-btn">
+                  <input type="checkbox" class="day-checkbox" value="0">
+                  <span>Min</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Waktu</label>
+                <input type="time" id="scheduleTime">
+              </div>
+              <div class="form-group">
+                <label>Durasi (detik)</label>
+                <input type="number" id="scheduleDuration" min="5" max="300" value="30" step="5">
+              </div>
+            </div>
+            <button class="btn btn-primary" id="addScheduleBtn">
+              <i class="fas fa-plus"></i> Tambah Jadwal
+            </button>
+          </div>
+
+          <!-- Schedule List -->
+          <div class="schedule-list" id="scheduleList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         HISTORICAL CHARTS
+         ========================================== -->
+    <section class="charts-section">
+      <div class="charts-grid">
+        <div class="card chart-card">
+          <h2 class="card-title">
+            <i class="fas fa-chart-line"></i> Riwayat Kelembaban Tanah
+          </h2>
+          <div class="chart-wrapper">
+            <canvas id="moistureChart"></canvas>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <h2 class="card-title">
+            <i class="fas fa-chart-area"></i> Riwayat Suhu & Kelembaban Udara
+          </h2>
+          <div class="chart-wrapper">
+            <canvas id="tempHumidityChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         ACTIVITY LOG
+         ========================================== -->
+    <section class="activity-section">
+      <div class="card log-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-list-alt"></i> Log Aktivitas
+          </h2>
+          <button class="btn btn-sm btn-outline" id="clearLogBtn">
+            <img src="assets/trash.svg" alt="Bersihkan" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 5px;"> Bersihkan
+          </button>
+        </div>
+        <div class="log-container" id="activityLog">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="footer">
+    <p>🌿 Capstone — Smart Green &copy; 2026 | Capstone Project</p>
+  </footer>
+
+  <!-- ============================================
+       SCRIPTS
+       ============================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
+
+  <!-- Firebase SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+
+  <!-- App -->
+  <script src="app.js"></script>
+
+</body>
+</html>
